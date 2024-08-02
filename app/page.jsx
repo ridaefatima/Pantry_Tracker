@@ -1,5 +1,5 @@
 'use client';
-
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useEffect } from 'react';
@@ -24,6 +24,7 @@ export default function Home() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <SpeedInsights />
       <main style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '24px', backgroundColor: 'black' }}>
         <div
           style={{
