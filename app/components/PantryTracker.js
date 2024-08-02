@@ -14,7 +14,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '90%',
   bgcolor: 'white',
   color: 'black',
   border: '2px solid #000',
@@ -218,180 +218,226 @@ export default function PantryTracker() {
 
   return (
     <Box
-      width="100vw"
-      height="calc(100vh - 100px)" // Adjusted to avoid overlapping with the fixed header
+  width="100vw"
+  height="calc(100vh - 100px)" // Adjusted to avoid overlapping with the fixed header
+  display="flex"
+  flexDirection="column"
+  alignItems="center"
+  bgcolor="black"
+  overflow="auto"
+  sx={hideScrollbarStyles}
+>
+<Modal open={open} onClose={handleClose}>
+      <Box sx={style}>
+        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+          {selectedItem ? 'Update Item' : 'Add Item'}
+        </Typography>
+        <Stack spacing={2}>
+          <TextField
+            variant="outlined"
+            label="Item Name"
+            value={newItemName}
+            onChange={(e) => setNewItemName(e.target.value)}
+            fullWidth
+          />
+          <DatePicker
+            label="Expiry Date"
+            value={newExpiryDate}
+            onChange={(date) => setNewExpiryDate(date)}
+            renderInput={(params) => <TextField {...params} variant="outlined" fullWidth />}
+          />
+          <Button
+            variant="outlined"
+            sx={{
+              backgroundColor: 'darkred',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'red',
+              },
+            }}
+            onClick={() => {
+              if (selectedItem) {
+                updateItem();
+              } else {
+                addItem(newItemName);
+              }
+              setNewItemName('');
+              setNewExpiryDate(null);
+              handleClose();
+            }}
+            fullWidth
+          >
+            {selectedItem ? 'Update' : 'Add'}
+          </Button>
+        </Stack>
+      </Box>
+    </Modal>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <Box
+    display="flex"
+    flexDirection={{ xs: 'column', sm: 'row' }} // Stack vertically on small screens
+    alignItems="center"
+    justifyContent="center"
+    gap={2}
+    mb={2}
+    width="75%"
+  >
+    <Button
+      variant="contained"
+      sx={{
+        backgroundColor: 'darkred',
+        color: 'white',
+        '&:hover': {
+          backgroundColor: 'red',
+        },
+        width: { xs: '100%', sm: 200 }, // Full width on small screens
+        maxWidth: 200,
+      }}
+      onClick={() => handleOpen()}
+    >
+      Add Item
+    </Button>
+    <TextField
+      sx={{
+        backgroundColor: 'white',
+        borderRadius: 2,
+        height: 40,
+        width: { xs: '100%', sm: 300 }, // Full width on small screens
+        maxWidth: 300,
+        '& .MuiOutlinedInput-root': {
+          height: '100%',
+          '& fieldset': {
+            borderColor: 'transparent',
+          },
+          '&:hover fieldset': {
+            borderColor: 'transparent',
+          },
+          '&.Mui-focused fieldset': {
+            borderColor: 'transparent',
+          },
+        },
+        '& .MuiInputBase-input': {
+          textAlign: 'center',
+          padding: '0 13px',
+          height: '100%',
+          boxSizing: 'border-box',
+          display: 'flex',
+          alignItems: 'center',
+        },
+      }}
+      variant="outlined"
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search Items"
+    />
+  </Box>
+
+  <Box
+    display="flex"
+    flexDirection="column"
+    width="100%"
+    alignItems="center"
+    justifyContent="center"
+    height="fixed"
+  >
+    <Box
+      overflow="auto"
+      width="75%"
+      maxWidth="800px"
+      bgcolor="darkred"
+      p={2}
+      borderRadius={2}
+      mb={2}
+      display="flex"
+      justifyContent="center"
+    >
+      <Typography variant="h4" color="white" textAlign="center">
+        Inventory Items
+      </Typography>
+    </Box>
+
+    <Box
+      width="75%"
+      maxWidth="800px"
+      height="calc(100vh - 450px)"
       display="flex"
       flexDirection="column"
-      alignItems="center"
-      bgcolor="black"
       overflow="auto"
       sx={hideScrollbarStyles}
     >
-      <Modal open={open} onClose={handleClose}>
-        <Box sx={style}>
-          <Typography variant="h6">{selectedItem ? 'Update Item' : 'Add Item'}</Typography>
-          <Stack spacing={2}>
-            <TextField
-              variant="outlined"
-              label="Item Name"
-              value={newItemName}
-              onChange={(e) => setNewItemName(e.target.value)}
-            />
-            <DatePicker
-              label="Expiry Date"
-              value={newExpiryDate}
-              onChange={(date) => setNewExpiryDate(date)}
-              renderInput={(params) => <TextField {...params} variant="outlined" />}
-            />
-            <Button
-              variant="outlined"
-              sx={{
-                backgroundColor: 'darkred',
-                color: 'white',
-                '&:hover': {
-                  backgroundColor: 'red',
-                },
-              }}
-              onClick={() => {
-                if (selectedItem) {
-                  updateItem();
-                } else {
-                  addItem(newItemName);
-                }
-                setNewItemName('');
-                setNewExpiryDate(null);
-                handleClose();
-              }}
-            >
-              {selectedItem ? 'Update' : 'Add'}
-            </Button>
-          </Stack>
-        </Box>
-      </Modal>
+      {filteredInventory.length === 0 ? (
+        <Typography textAlign="center" color="white" mt={4}>No items found</Typography>
+      ) : (
+        filteredInventory.map((item) => (
+          <Box
+            key={item.name}
+            display="flex"
+            flexDirection="row"
+            justifyContent="center"
+            alignItems="center"
+            bgcolor="white"
+            color="black"
+            p={2}
+            borderRadius={2}
+            
+            mb={2}
+            flexWrap="wrap" // Wrap items on smaller screens
+          >
+            <Typography
+    variant="body1"
+    sx={{
+      flexGrow: 1,
+      maxWidth: 'calc(100% - 100px)', // Adjust as needed to fit the container's layout
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      whiteSpace: 'normal',
+      wordBreak: 'break-word',
       
-      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" gap={2} mb={2} width="75%">
-        <Button
-          variant="contained"
-          sx={{
-            backgroundColor: 'darkred',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: 'red',
-            },
-            width: 200,
-          }}
-          onClick={() => handleOpen()}
-        >
-          Add Item
-        </Button>
-        <TextField
-          sx={{
-            backgroundColor: 'white',
-            borderRadius: 2,
-            height: 40,
-            width: 300,
-            '& .MuiOutlinedInput-root': {
-              height: '100%',
-              '& fieldset': {
-                borderColor: 'transparent',
-              },
-              '&:hover fieldset': {
-                borderColor: 'transparent',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: 'transparent',
-              },
-            },
-            '& .MuiInputBase-input': {
-              textAlign: 'center',
-              padding: '0 13px',
-              height: '100%',
-              boxSizing: 'border-box',
-              display: 'flex',
-              alignItems: 'center',
-            },
-          }}
-          variant="outlined"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Items"
-        />
-      </Box>
-<Box
-display="flex"
-flexDirection="column"
-width="100%"
-alignItems="center"
-justifyContent="center"
-height="fixed"
->
-      <Box
-      overflow="auto"
-  width="75%"
-  maxWidth="800px"
-  bgcolor="darkred"
-  
-  p={2}
-  borderRadius={2}
-  mb={2}
-  display="flex"
-  justifyContent="center"
->
-  <Typography variant="h4" color="white" textAlign="center">
-    Inventory Items
+    }}
+  >
+    {item.name}
   </Typography>
-</Box>
 
-
-
-      <Box
-        width="75%"
-        maxWidth="800px"
-        height="calc(100vh - 450px)"
-        display="flex"
-         flexDirection="column"
-        overflow="auto"
-        sx={hideScrollbarStyles}
-      >
-        {filteredInventory.length === 0 ? (
-          <Typography textAlign="center" color="white" mt={4}>No items found</Typography>
-        ) : (
-          filteredInventory.map((item) => (
             <Box
-              key={item.name}
               display="flex"
-              flexDirection="row"
-              justifyContent="space-between"
+               
               alignItems="center"
-              bgcolor="white"
-              color="black"
-              p={2}
-              borderRadius={2}
-              
-              mb={2}
-            >
-              <Typography variant="body1" flexGrow={1}>
-                {item.name} 
-              </Typography>
-              <Box
-              display="flex"
-              flexDirection="row"
-              alignItems="center"
-              
-              >
-              <Box
-              display="flex"
-              flexDirection="column"
+
+              flexWrap="wrap"
               justifyContent="center"
-              alignItems="center">
-              <Typography variant="body2" color={isExpired(item.expiryDate) ? 'red' : 'green'}>
+            >
+              <Box
+              display="flex"
+              flexDirection={{ xs: 'column', sm: 'row' }}
+              flexWrap="wrap"
+             alignItems="center"
+              >
+              <Typography
+                variant="body2"
+                display="flex"
+                marginRight={2}
+                color={isExpired(item.expiryDate) ? 'red' : 'green'}
+              >
                 {getDaysUntilExpiry(item.expiryDate)}
               </Typography>
-              <Box
-              display="flex"
-             flexDirection="row"
-              
-              >
+
               <Button
                 variant="contained"
                 sx={{
@@ -400,75 +446,78 @@ height="fixed"
                   '&:hover': {
                     backgroundColor: 'red',
                   },
-                  ml: 2,
-                }}
-                onClick={() => addItem(item.name)}
-              >
-                +
-              </Button>
-              <Typography variant="body1" sx={{ml: 2}}>
-              {item.quantity} 
-              </Typography>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: 'darkred',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'red',
-                  },
-                  ml: 2,
-                }}
-                onClick={() => removeItem(item.name)}
-              >
-                -
-              </Button>
-              </Box>
-              </Box>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: 'darkred',
-                  color: 'white',
-                  '&:hover': {
-                    backgroundColor: 'red',
-                  },
-                  ml: 2,
-                  marginTop: 2.75
+                  mr: 2,
+                  minWidth: '80px',
+                  display: 'flex',
                 }}
                 onClick={() => handleOpen(item)}
               >
                 Edit
               </Button>
 </Box>
+              <Box
+                display="flex"
+                flexDirection="column"
+                flexWrap="wrap"
+                justifyContent="center"
+                alignItems="center"
+                sx={{ gap: 1}}
+              >
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: 'darkred',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'red',
+                    },
+                    
+                    minWidth: '50px',
+                  }}
+                  onClick={() => addItem(item.name)}
+                >
+                  +
+                </Button>
+                <Typography variant="body1" sx={{ mx: 2 }}>
+                  {item.quantity}
+                </Typography>
+                <Button
+                  variant="contained"
+                  sx={{
+                    backgroundColor: 'darkred',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'red',
+                    },
+                    
+                    minWidth: '50px',
+                  }}
+                  onClick={() => removeItem(item.name)}
+                >
+                  -
+                </Button>
+              </Box>
             </Box>
-          ))
-        )}
-      </Box>
-      </Box>
-       
+          </Box>
+        ))
+      )}
+    </Box>
+  </Box>
 
   <Button
-          variant="contained"
-         
-          // Use MUI's color for dark red
-     
-          sx={{ mb: 5, mt:2, bgcolor: 'darkred', '&:hover': { bgcolor: 'red' } }}
-        
-         
-          onClick={handleGetRecipe}
-          disabled={loadingRecipe}
-        >
-          {loadingRecipe ? <CircularProgress size={24} /> : 'Get Recipe'}
-        </Button>
-        <RecipeDisplay
-          open={isRecipeOpen}
-          handleClose={closeRecipe}
-          recipe={recipe}
-        />
-
-
-
+    variant="contained"
+    sx={{ mb: 5, mt: 2, bgcolor: 'darkred', '&:hover': { bgcolor: 'red' } }}
+    onClick={handleGetRecipe}
+    disabled={loadingRecipe}
+  >
+    {loadingRecipe ? <CircularProgress size={24} /> : 'Get Recipe'}
+  </Button>
+  <RecipeDisplay
+    open={isRecipeOpen}
+    handleClose={closeRecipe}
+    recipe={recipe}
+  />
 </Box>
+
   );
 }
