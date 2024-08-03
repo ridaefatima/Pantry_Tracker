@@ -49,9 +49,9 @@ export default function Home() {
             padding: '10px'
           }}
         >
-          <p style={{ color: 'darkred' }}>
+          <h3 style={{ color: 'darkred'  }}>
             MyPantryApp
-          </p>
+          </h3>
           <button
             onClick={() => {
               signOut(auth);

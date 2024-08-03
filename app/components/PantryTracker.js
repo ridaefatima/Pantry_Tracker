@@ -8,6 +8,7 @@ import { addDays, differenceInDays } from 'date-fns';
 import { Timestamp } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import RecipeDisplay from './RecipeDisplay';
+import CustomDatePicker from './CustomDatePicker';
 
 const style = {
   position: 'absolute',
@@ -173,20 +174,26 @@ export default function PantryTracker() {
     const expiryTimestamp = newExpiryDate ? Timestamp.fromDate(newExpiryDate) : null;
   
     if (oldItemNameLower !== newItemNameLower) {
-      // Delete the old item and create a new one with the updated name
+      // Update the document with the new name, and keep the same document reference
       const oldDocSnap = await getDoc(oldDocRef);
       if (oldDocSnap.exists()) {
         const { quantity, expiryDate } = oldDocSnap.data();
-        await deleteDoc(oldDocRef);
-        await setDoc(newDocRef, { quantity, expiryDate: expiryTimestamp || expiryDate });
+        await setDoc(newDocRef, { name: newItemName, quantity, expiryDate: expiryTimestamp || expiryDate });
+        if (oldDocRef.id !== newDocRef.id) {
+          await deleteDoc(oldDocRef);
+        }
+      } else {
+        // If old document does not exist, just create a new document with new name
+        await setDoc(newDocRef, { name: newItemName, quantity: selectedItem.quantity, expiryDate: expiryTimestamp });
       }
     } else {
       // Update the existing item
-      await setDoc(oldDocRef, { quantity: selectedItem.quantity, expiryDate: expiryTimestamp });
+      await setDoc(oldDocRef, { name: newItemName, quantity: selectedItem.quantity, expiryDate: expiryTimestamp });
     }
-    
+  
     await updateInventory();
   };
+  
   
 
   const handleOpen = (item = null) => {
@@ -257,7 +264,7 @@ export default function PantryTracker() {
             label="Item Name"
             
             value={newItemName}
-            sx={{backgroundColor: '#222', borderRadius: '10px', input: { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'none' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            sx={{backgroundColor: '#222', borderRadius: '1px', input: { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'white' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
             InputProps={{
               style: { color: 'white' },
               classes: { input: { color: 'white' } },
@@ -270,50 +277,7 @@ export default function PantryTracker() {
           />
           
 
-          <style> {`
-.custom-placeholder::placeholder {
-  color: white;
-}
-
-`}</style>
-
-
-
-
-          <DatePicker
-  label="Expiry Date"
-  value={newExpiryDate}
-  sx={{ backgroundColor: '#222', borderRadius: '10px' }}
-  onChange={(date) => setNewExpiryDate(date)}
-  renderInput={(params) => (
-    <TextField
-      {...params}
-      variant="outlined"
-      fullWidth
-      InputProps={{
-        ...params.InputProps,
-        style: { color: 'white' },
-        classes: {
-          input: 'custom-placeholder',
-        },
-      }}
-      InputLabelProps={{
-        style: { color: 'white' },
-      }}
-      sx={{
-        '& .MuiInputLabel-root': { color: 'white' },
-        '& .MuiOutlinedInput-root': {
-          '& fieldset': { borderColor: 'white' },
-          '&:hover fieldset': { borderColor: 'white' },
-          '&.Mui-focused fieldset': { borderColor: 'white' },
-        },
-      }}
-    />
-  )}
-/>
-
-
-
+          <CustomDatePicker newExpiryDate={newExpiryDate} setNewExpiryDate={setNewExpiryDate} />
 
           <Button
             variant="outlined"
