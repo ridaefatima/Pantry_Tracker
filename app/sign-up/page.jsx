@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 import { useCreateUserWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { auth } from '../firebase/config.js';
@@ -10,8 +9,24 @@ const SignUp = () => {
   const [password, setPassword] = useState('');
   const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
   const [successMessage, setSuccessMessage] = useState(''); // Add state for success message
+  const [validationError, setValidationError] = useState(''); // Add state for validation error
 
   const handleSignUp = async () => {
+    setValidationError('');
+    setSuccessMessage('');
+
+    // Validate email format
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setValidationError('Invalid email format');
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setValidationError('Password must be at least 6 characters long');
+      return;
+    }
+
     try {
       const res = await createUserWithEmailAndPassword(email, password);
       console.log({ res });
@@ -84,6 +99,12 @@ const SignUp = () => {
             boxSizing: 'border-box',
           }}
         />
+        {validationError && <p style={{
+          color: '#f44336',
+          marginBottom: '16px',
+          textAlign: 'center',
+          fontSize: '14px',
+        }}>{validationError}</p>}
         <button
           onClick={handleSignUp}
           style={{

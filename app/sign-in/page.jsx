@@ -8,22 +8,70 @@ import Link from 'next/link';  // Import Link for navigation
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [signInWithEmailAndPassword] = useSignInWithEmailAndPassword(auth);
+  const [signInWithEmailAndPassword, user, loading, error] = useSignInWithEmailAndPassword(auth);
+  const [authError, setAuthError] = useState('');
+  const [isFormValid, setIsFormValid] = useState(true); // New state for form validation
   const router = useRouter();
 
-  const handleSignIn = async () => {
-    try {
-      const res = await signInWithEmailAndPassword(email, password);
-      console.log({ res });
-      sessionStorage.setItem('user', true);
-      setEmail('');
-      setPassword('');
-      router.push('/');
-    } catch (e) {
-      console.error(e);
-    }
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
   };
 
+  const validatePassword = (password) => {
+    return password.length >= 6;
+  };
+
+  const handleSignIn = async () => {
+    setAuthError(''); // Reset the authentication error state
+    
+    if (!validateEmail(email)) {
+      setAuthError('Invalid email format.');
+      setIsFormValid(false); // Form is not valid
+      console.log('Invalid email format.');
+      return;
+    }
+    
+    if (!validatePassword(password)) {
+      setAuthError('Password must be at least 6 characters long.');
+      setIsFormValid(false); // Form is not valid
+      console.log('Invalid password.');
+      return;
+    }
+    
+    setIsFormValid(true); // Form is valid, proceed with sign-in
+    
+    try {
+      // Attempt to sign in with email and password
+      const res = await signInWithEmailAndPassword(email, password);
+      console.log('Sign-in response:', res);
+      
+      // Check if sign-in was successful
+      if (res) {
+        sessionStorage.setItem('user', true);
+        setEmail('');
+        setPassword('');
+        router.push('/');
+      }
+    } catch (e) {
+      // Enhanced error handling
+      console.error('Sign-in error details:', e);
+      
+      // Handle specific Firebase authentication errors
+      if (e.code === 'auth/user-not-found') {
+        setAuthError("You don't have an account yet. Please sign up.");
+      } else if (e.code === 'auth/wrong-password') {
+        setAuthError('Incorrect password. Please try again.');
+      } else if (e.code === 'auth/invalid-email') {
+        setAuthError('Invalid email format.');
+      } else {
+        setAuthError('An error occurred. Please try again.');
+      }
+      setIsFormValid(false); // Form is not valid
+    }
+  };
+  
+  
   return (
     <div style={{
       minHeight: '100vh',
@@ -83,6 +131,16 @@ const SignIn = () => {
             boxSizing: 'border-box',
           }}
         />
+        {authError && (
+          <p style={{
+            color: '#f44336',
+            marginBottom: '16px',
+            textAlign: 'center',
+            fontSize: '14px',
+          }}>
+            {authError}
+          </p>
+        )}
         <button
           onClick={handleSignIn}
           style={{
@@ -97,8 +155,9 @@ const SignIn = () => {
             transition: 'background-color 0.3s',
             boxSizing: 'border-box',
           }}
+          disabled={loading || !isFormValid} // Disable button if loading or form is invalid
         >
-          Log In
+          {loading ? 'Logging In...' : 'Log In'}
         </button>
        
         <div style={{
