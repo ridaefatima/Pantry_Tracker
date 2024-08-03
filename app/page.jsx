@@ -1,5 +1,5 @@
 'use client';
-import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { useEffect } from 'react';
@@ -8,6 +8,7 @@ import { auth } from './firebase/config.js';
 import PantryTracker from './components/PantryTracker.js';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
+import { GlobalStyles } from '@mui/material'; // Import GlobalStyles
 
 export default function Home() {
   const [user] = useAuthState(auth);
@@ -24,6 +25,13 @@ export default function Home() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <GlobalStyles
+        styles={{
+          '.custom-placeholder::placeholder': {
+            color: 'white',
+          },
+        }}
+      />
       <SpeedInsights />
       <main style={{ display: 'flex', minHeight: '100vh', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', padding: '24px', backgroundColor: 'black' }}>
         <div

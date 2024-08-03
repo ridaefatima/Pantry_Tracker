@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { firestore } from '../firebase/config.js';
-import { Box, Modal, Typography, Stack, TextField, Button, CircularProgress } from '@mui/material';
+import { Box, Modal, Typography, Stack, TextField, Button, CircularProgress} from '@mui/material';
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore';
 import { DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -25,6 +25,7 @@ const style = {
   flexDirection: 'column',
 
   gap: 3,
+  
   
 };
 
@@ -164,14 +165,29 @@ export default function PantryTracker() {
 
   const updateItem = async () => {
     if (!userId || !selectedItem) return;
-
-    const itemNameLower = newItemName.toLowerCase();
-    const docRef = doc(collection(firestore, 'users', userId, 'inventory'), itemNameLower);
+  
+    const oldItemNameLower = selectedItem.name.toLowerCase();
+    const newItemNameLower = newItemName.toLowerCase();
+    const oldDocRef = doc(collection(firestore, 'users', userId, 'inventory'), oldItemNameLower);
+    const newDocRef = doc(collection(firestore, 'users', userId, 'inventory'), newItemNameLower);
     const expiryTimestamp = newExpiryDate ? Timestamp.fromDate(newExpiryDate) : null;
-
-    await setDoc(docRef, { quantity: selectedItem.quantity, expiryDate: expiryTimestamp });
+  
+    if (oldItemNameLower !== newItemNameLower) {
+      // Delete the old item and create a new one with the updated name
+      const oldDocSnap = await getDoc(oldDocRef);
+      if (oldDocSnap.exists()) {
+        const { quantity, expiryDate } = oldDocSnap.data();
+        await deleteDoc(oldDocRef);
+        await setDoc(newDocRef, { quantity, expiryDate: expiryTimestamp || expiryDate });
+      }
+    } else {
+      // Update the existing item
+      await setDoc(oldDocRef, { quantity: selectedItem.quantity, expiryDate: expiryTimestamp });
+    }
+    
     await updateInventory();
   };
+  
 
   const handleOpen = (item = null) => {
     setSelectedItem(item);
@@ -241,17 +257,64 @@ export default function PantryTracker() {
             label="Item Name"
             
             value={newItemName}
-            sx={{backgroundColor: '#222', borderRadius: '10px'}}
+            sx={{backgroundColor: '#222', borderRadius: '10px', input: { color: 'white' }, '& .MuiOutlinedInput-root': { '& fieldset': { borderColor: 'none' }, '&:hover fieldset': { borderColor: 'white' }, '&.Mui-focused fieldset': { borderColor: 'white' } } }}
+            InputProps={{
+              style: { color: 'white' },
+              classes: { input: { color: 'white' } },
+            }}
+            InputLabelProps={{
+              style: { color: 'white' },
+            }}
             onChange={(e) => setNewItemName(e.target.value)}
             fullWidth
           />
+          
+
+          <style> {`
+.custom-placeholder::placeholder {
+  color: white;
+}
+
+`}</style>
+
+
+
+
           <DatePicker
-            label="Expiry Date"
-            value={newExpiryDate}
-            sx={{backgroundColor: '#222', borderRadius: '10px'}}
-            onChange={(date) => setNewExpiryDate(date)}
-            renderInput={(params) => <TextField {...params} variant="outlined" fullWidth />}
-          />
+  label="Expiry Date"
+  value={newExpiryDate}
+  sx={{ backgroundColor: '#222', borderRadius: '10px' }}
+  onChange={(date) => setNewExpiryDate(date)}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      variant="outlined"
+      fullWidth
+      InputProps={{
+        ...params.InputProps,
+        style: { color: 'white' },
+        classes: {
+          input: 'custom-placeholder',
+        },
+      }}
+      InputLabelProps={{
+        style: { color: 'white' },
+      }}
+      sx={{
+        '& .MuiInputLabel-root': { color: 'white' },
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': { borderColor: 'white' },
+          '&:hover fieldset': { borderColor: 'white' },
+          '&.Mui-focused fieldset': { borderColor: 'white' },
+        },
+      }}
+    />
+  )}
+/>
+
+
+
+
           <Button
             variant="outlined"
             sx={{
