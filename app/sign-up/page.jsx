@@ -9,6 +9,7 @@ const SignUp = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [createUserWithEmailAndPassword, user, loading, error] = useCreateUserWithEmailAndPassword(auth);
+  const [successMessage, setSuccessMessage] = useState(''); // Add state for success message
 
   const handleSignUp = async () => {
     try {
@@ -17,6 +18,7 @@ const SignUp = () => {
       sessionStorage.setItem('user', true);
       setEmail('');
       setPassword('');
+      setSuccessMessage('Signed up successfully! Proceed to '); // Set success message
     } catch (e) {
       console.error(e);
     }
@@ -87,7 +89,7 @@ const SignUp = () => {
           style={{
             width: '100%',
             padding: '12px',
-            backgroundColor: 'darkred',
+            backgroundColor: '#2a0000',
             borderRadius: '4px',
             color: '#fff',
             border: 'none',
@@ -100,6 +102,17 @@ const SignUp = () => {
         >
           {loading ? 'Signing Up...' : 'Sign Up'}
         </button>
+        {successMessage && <p style={{
+          color: '#4caf50', // Success message color
+          marginTop: '12px',
+          textAlign: 'center',
+          fontSize: '14px',
+        }}>
+          {successMessage} <Link href="/sign-in" style={{
+            color: '#2a0000',
+            textDecoration: 'underline',
+          }}>Log In</Link>
+        </p>}
         {error && <p style={{
           color: '#f44336',
           marginTop: '12px',
@@ -117,7 +130,7 @@ const SignUp = () => {
           }}>
             Already a member?{' '}
             <Link href="/sign-in" style={{
-              color: 'darkred',
+              color: '#2a0000',
               textDecoration: 'underline',
             }}>Log In</Link>
           </p>

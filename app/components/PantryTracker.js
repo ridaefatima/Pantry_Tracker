@@ -15,14 +15,17 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: '90%',
-  bgcolor: 'white',
-  color: 'black',
-  border: '2px solid #000',
+  maxWidth:'400px',
+  bgcolor: '#111',
+  color: 'white',
+  borderRadius: '10px',
   boxShadow: 24,
   p: 4,
   display: 'flex',
   flexDirection: 'column',
+
   gap: 3,
+  
 };
 
 const hideScrollbarStyles = {
@@ -229,20 +232,23 @@ export default function PantryTracker() {
 >
 <Modal open={open} onClose={handleClose}>
       <Box sx={style}>
-        <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+        <Typography variant="h6" component="h2" sx={{ mb: 2 ,textAlign: 'center'}}>
           {selectedItem ? 'Update Item' : 'Add Item'}
         </Typography>
         <Stack spacing={2}>
           <TextField
             variant="outlined"
             label="Item Name"
+            
             value={newItemName}
+            sx={{backgroundColor: '#222', borderRadius: '10px'}}
             onChange={(e) => setNewItemName(e.target.value)}
             fullWidth
           />
           <DatePicker
             label="Expiry Date"
             value={newExpiryDate}
+            sx={{backgroundColor: '#222', borderRadius: '10px'}}
             onChange={(date) => setNewExpiryDate(date)}
             renderInput={(params) => <TextField {...params} variant="outlined" fullWidth />}
           />
@@ -275,21 +281,6 @@ export default function PantryTracker() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   <Box
     display="flex"
     flexDirection={{ xs: 'column', sm: 'row' }} // Stack vertically on small screens
@@ -316,8 +307,9 @@ export default function PantryTracker() {
     </Button>
     <TextField
       sx={{
-        backgroundColor: 'white',
+        backgroundColor: '#222',
         borderRadius: 2,
+        
         height: 40,
         width: { xs: '100%', sm: 300 }, // Full width on small screens
         maxWidth: 300,
@@ -341,6 +333,12 @@ export default function PantryTracker() {
           display: 'flex',
           alignItems: 'center',
         },
+'& .MuiInputBase-input::placeholder': {
+      color: 'white', // Set placeholder text color to white
+    },
+
+
+
       }}
       variant="outlined"
       value={searchQuery}
@@ -392,8 +390,8 @@ export default function PantryTracker() {
             flexDirection="row"
             justifyContent="center"
             alignItems="center"
-            bgcolor="white"
-            color="black"
+            bgcolor="#222"
+            color="white"
             p={2}
             borderRadius={2}
             
