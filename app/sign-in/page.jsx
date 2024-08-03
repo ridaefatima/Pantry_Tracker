@@ -88,7 +88,7 @@ const SignIn = () => {
           style={{
             width: '100%',
             padding: '12px',
-            backgroundColor: '#2a0000',
+            backgroundColor: 'darkred',
             borderRadius: '4px',
             color: '#fff',
             border: 'none',
@@ -112,7 +112,7 @@ const SignIn = () => {
           }}>
             Not a member?{' '}
             <Link href="/sign-up" style={{
-              color: '#2a0000',
+              color: 'darkred',
               textDecoration: 'underline',
             }}>Sign Up</Link>
           </p>

@@ -89,7 +89,7 @@ const SignUp = () => {
           style={{
             width: '100%',
             padding: '12px',
-            backgroundColor: '#2a0000',
+            backgroundColor: 'darkred',
             borderRadius: '4px',
             color: '#fff',
             border: 'none',
@@ -109,7 +109,7 @@ const SignUp = () => {
           fontSize: '14px',
         }}>
           {successMessage} <Link href="/sign-in" style={{
-            color: '#2a0000',
+            color: 'darkred',
             textDecoration: 'underline',
           }}>Log In</Link>
         </p>}
@@ -130,7 +130,7 @@ const SignUp = () => {
           }}>
             Already a member?{' '}
             <Link href="/sign-in" style={{
-              color: '#2a0000',
+              color: 'darkred',
               textDecoration: 'underline',
             }}>Log In</Link>
           </p>
